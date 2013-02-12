@@ -19,6 +19,6 @@ endfunction
 call psearch#Init()
 
 
-function! psearch#Open()
-    py psearch_plugin.open()
+function! psearch#Open(cword)
+    py psearch_plugin.open(vim.eval('a:cword'))
 endfunction

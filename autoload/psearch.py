@@ -270,9 +270,12 @@ class PSearch:
 
             return True
 
+    def open(self, word_under_cursor):
         """To open the launcher."""
-        # Remember the currently open file so that we can exclude it
-        # from the matches
+
+        if word_under_cursor:
+            self.input_so_far = word_under_cursor
+
         self.curr_buf = vim.current.buffer
         self.curr_buf_win = self.misc.winnr()
         self.curr_buf_pos = vim.current.window.cursor
@@ -282,7 +285,7 @@ class PSearch:
         self.update_launcher()
         self.misc.redraw()
 
-        input = Input()
+        input = psearch.input.Input()
         # Start the input loop
         while True:
             self.update_matches = False

@@ -52,4 +52,5 @@ let g:pse_prompt = get(g:, 'pse_prompt', ' ❯ ')
 let g:pse_max_height = get(g:, 'pse_max_height', 15)
 
 " Commands
-command! PSearch call psearch#Open()
+command! PSearch call psearch#Open('')
+command! PSearchw call psearch#Open(expand('<cword>'))
