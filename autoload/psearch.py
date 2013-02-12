@@ -10,6 +10,7 @@ import os
 import re
 import sys
 import vim
+import bisect
 
 sys.path.insert(0, os.path.split(
     vim.eval('fnameescape(globpath(&runtimepath, "autoload/psearch.py"))'))[0])
@@ -115,8 +116,9 @@ class PSearch:
         self.prompt = self.settings.get('prompt')
         self.input_so_far = ''
         self.launcher_win = None
+        self.update_matches = True
         self.curr_pos = None
-        self.curr_launcher_height = 0
+        self.curr_buf_pos = None
         self.curr_buf = None
         self.curr_buf_win = None
         self.orig_settings = {}
@@ -124,11 +126,13 @@ class PSearch:
             'max_launcher_height', int)
         self.RE_PATH = re.compile('\A▸\s\S+\s+(\S+)')
         self.RE_MATH = re.compile('(\d+|\+|\*|\/|-)')
+        self.mapper = {}
 
         # setup highlight groups
-        vim.command('hi link PSearchLauncherLine String')
-        vim.command('hi link PSearchLauncherCol String')
-        vim.command('hi link PsearchLauncherMatches Search')
+        vim.command('hi link PSearchLine String')
+        vim.command('hi link PSearchDots Comment')
+        vim.command('hi link PSearchCurrPos WarningMsg')
+        vim.command('hi link PsearchMatches Search')
 
     def restore_old_settings(self):
         """Restore original settings."""
@@ -140,7 +144,6 @@ class PSearch:
         self.input_so_far = ''
         self.launcher_win = None
         self.curr_pos = None
-        self.curr_launcher_height = 0
         self.curr_buf = None
         self.curr_buf_win = None
 
@@ -163,9 +166,11 @@ class PSearch:
 
     def highlight(self):
         vim.command("syntax clear")
-        vim.command('syn match PSearchLauncherLine /\%<6vLine:/')
-        vim.command('syn match PSearchLauncherCol /\%<20vCol:/')
-        vim.command('syn match PSearchLauncherMatches /\%>12v\c{0}/'
+        vim.command('syn match PSearchLine /\%<6vLine:/')
+        vim.command('syn match PSearchDots /\%<17v\.\.\./')
+        vim.command('syn match PSearchCurrPos '
+            '/  ------ \* ------/')
+        vim.command('syn match PSearchMatches /\%>12v\c{0}/'
             .format(self.input_so_far))
 
     def close_launcher(self):
@@ -183,6 +188,7 @@ class PSearch:
         return self.misc.bufwinnr(self.name)
 
     def search(self, target):
+        """To search in the current buffer the given pattern."""
         matches = []
         if self.curr_buf_win and self.input_so_far:
             self.misc.go_to_win(self.curr_buf_win)
@@ -190,10 +196,11 @@ class PSearch:
             vim.current.window.cursor = (1, 1)
             while True:
                 line, col = vim.eval("searchpos('{0}', 'W')"
-                    .format(self.input_so_far))
-                if line == '0' and col == '0':
+                    .format(self.input_so_far.replace('\\', '\\\\')))
+                line, col = int(line), int(col)
+                if line == 0 and col == 0:
                     break
-                matches.append((line, col, vim.current.buffer[int(line) - 1]))
+                matches.append((line, col, vim.current.buffer[line - 1]))
 
             vim.current.window.cursor = orig_pos
 
@@ -205,6 +212,7 @@ class PSearch:
         if not self.launcher_win:
             self.launcher_win = self.open_launcher()
 
+        self.mapper.clear()
         self.misc.go_to_win(self.launcher_win)
         self.misc.set_buffer(None)
 
@@ -212,25 +220,40 @@ class PSearch:
         matches = self.search(self.input_so_far)
 
         if matches:
-            matches.sort(reverse=True)
-            self.misc.set_buffer([self.render_line(m) for m in matches])
-            vim.current.window.height = len(matches)
+            pos = bisect.bisect_left(matches, self.curr_buf_pos)
+            matches.insert(pos, self.curr_buf_pos)
+            self.misc.set_buffer(
+                [self.render_line(m, i) for i, m in enumerate(matches)])
+
+            if self.update_matches:
+                self.curr_pos = pos
+                vim.command("normal! zz")
+
+            if self.curr_pos is not None:
+                vim.current.window.cursor = (self.curr_pos + 1, 1)
+
             self.render_curr_line()
             self.highlight()
+
+            matchesnr = len(matches)
+            if matchesnr > self.max_launcher_height:
+                vim.current.window.height = self.max_launcher_height
+            else:
+                vim.current.window.height = matchesnr
+
         else:
             vim.command('syntax clear')
             self.misc.set_buffer([' nothing found...'])
             vim.current.window.height = 1
             self.curr_pos = 0
 
-        if self.curr_pos is not None:
-            vim.current.window.cursor = (self.curr_pos + 1, 1)
-        self.curr_launcher_height = vim.current.window.height
-
-    def render_line(self, match):
+    def render_line(self, match, i):
         """To format a match displayed in the matches list window."""
-        return '  Line: {0: <4} Col: {1: <3} → {2}'.format(
-                    match[0], match[1], match[2])
+        if len(match) == 2:
+            return '  ------ * ------'.format(match[0])
+        else:
+            self.mapper[i] = match
+            return '  Line: {0: <4}  ... {1}'.format(match[0], match[2])
 
     def render_curr_line(self):
         """To format the current line in the laucher window."""
@@ -241,14 +264,11 @@ class PSearch:
 
     def go_to_selected_match(self):
         """To go to the selected match."""
-        text = vim.current.buffer[self.curr_pos]
-        match = re.match('▸ Line:\s(\d+)\s*Col:\s(\d+)', text)
+        match = self.mapper.get(self.curr_pos)
         if match:
-            linenr = match.group(1)
-            colnr = match.group(2)
             if self.curr_buf_win:
                 self.misc.go_to_win(self.curr_buf_win)
-            vim.current.window.cursor = (int(linenr), int(colnr) - 1)
+            vim.current.window.cursor = (match[0], match[1] - 1)
             vim.command("normal! zz")
 
             return True
@@ -259,6 +279,7 @@ class PSearch:
         # from the matches
         self.curr_buf = vim.current.buffer
         self.curr_buf_win = self.misc.winnr()
+        self.curr_buf_pos = vim.current.window.cursor
 
         # This first call opens the list of matches even though the user
         # didn't give any character as input
@@ -268,6 +289,7 @@ class PSearch:
         input = Input()
         # Start the input loop
         while True:
+            self.update_matches = False
 
             # Display the prompt and the text the user has been typed so far
             vim.command("echo '{0}{1}'".format(self.prompt, self.input_so_far))
@@ -284,6 +306,7 @@ class PSearch:
             elif input.BS:
                 # This acts just like the normal backspace key
                 self.input_so_far = self.input_so_far[:-1]
+                self.update_matches = True
                 # Reset the position of the selection in the matches list
                 # because the list has to be rebuilt
                 self.curr_pos = None
@@ -315,6 +338,7 @@ class PSearch:
                 # it so that in the next loop we can display exactly what the
                 # user has been typed so far
                 self.input_so_far += input.CHAR
+                self.update_matches = True
 
                 # Reset the position of the selection in the matches list
                 # because the list has to be rebuilt
@@ -330,5 +354,3 @@ class PSearch:
             self.misc.redraw()
 
         self.restore_old_settings()
-
-
