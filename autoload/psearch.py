@@ -122,11 +122,10 @@ class PSearch:
         self.curr_buf = None
         self.curr_buf_win = None
         self.orig_settings = {}
-        self.max_launcher_height = self.settings.get(
-            'max_launcher_height', int)
+        self.mapper = {}
+        self.max_height = self.settings.get('max_height', int)
         self.RE_PATH = re.compile('\A▸\s\S+\s+(\S+)')
         self.RE_MATH = re.compile('(\d+|\+|\*|\/|-)')
-        self.mapper = {}
 
         # setup highlight groups
         vim.command('hi link PSearchLine String')
@@ -271,7 +270,6 @@ class PSearch:
 
             return True
 
-    def open(self):
         """To open the launcher."""
         # Remember the currently open file so that we can exclude it
         # from the matches

@@ -49,7 +49,7 @@ let g:pse_loaded = 1
 
 " Settings
 let g:pse_prompt = get(g:, 'pse_prompt', ' ❯ ')
-let g:pse_max_launcher_height = get(g:, 'pse_max_launcher_height', 15)
+let g:pse_max_height = get(g:, 'pse_max_height', 15)
 
 " Commands
 command! PSearch call psearch#Open()
