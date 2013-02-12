@@ -131,7 +131,6 @@ class PSearch:
         # setup highlight groups
         vim.command('hi link PSearchLine String')
         vim.command('hi link PSearchDots Comment')
-        vim.command('hi link PSearchCurrPos WarningMsg')
         vim.command('hi link PsearchMatches Search')
 
     def restore_old_settings(self):
@@ -168,8 +167,6 @@ class PSearch:
         vim.command("syntax clear")
         vim.command('syn match PSearchLine /\%<6vLine:/')
         vim.command('syn match PSearchDots /\%<17v\.\.\./')
-        vim.command('syn match PSearchCurrPos '
-            '/  ------ \* ------/')
         vim.command('syn match PSearchMatches /\%>12v\c{0}/'
             .format(self.input_so_far))
 
@@ -227,7 +224,6 @@ class PSearch:
 
             if self.update_matches:
                 self.curr_pos = pos
-                vim.command("normal! zz")
 
             if self.curr_pos is not None:
                 vim.current.window.cursor = (self.curr_pos + 1, 1)
@@ -236,10 +232,12 @@ class PSearch:
             self.highlight()
 
             matchesnr = len(matches)
-            if matchesnr > self.max_launcher_height:
-                vim.current.window.height = self.max_launcher_height
+            if matchesnr > self.max_height:
+                vim.current.window.height = self.max_height
             else:
                 vim.current.window.height = matchesnr
+            
+            vim.command("normal! zz")
 
         else:
             vim.command('syntax clear')
