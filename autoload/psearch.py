@@ -38,7 +38,6 @@ class PSearch:
         self.orig_settings = {}
         self.mapper = {}
         self.max_height = self.settings.get('max_height', int)
-        self.RE_PATH = re.compile('\A▸\s\S+\s+(\S+)')
         self.RE_MATH = re.compile('(\d+|\+|\*|\/|-)')
 
         # setup highlight groups
@@ -77,11 +76,12 @@ class PSearch:
         vim.command("setlocal guicursor=a:hor5-Cursor-blinkwait100")
 
     def highlight(self):
+        """To setup highlighting."""
         vim.command("syntax clear")
         vim.command('syn match PSearchLine /\%<6vLine:/')
         vim.command('syn match PSearchDots /\%<17v\.\.\./')
         vim.command('syn match PSearchMatches /\%>12v\c{0}/'
-            .format(self.input_so_far))
+            .format(self.input_so_far.strip('\\')))
 
     def close_launcher(self):
         """To close the matches list window."""
@@ -106,7 +106,7 @@ class PSearch:
             vim.current.window.cursor = (1, 1)
             while True:
                 line, col = vim.eval("searchpos('{0}', 'W')"
-                    .format(self.input_so_far.replace('\\', '\\\\')))
+                    .format(self.input_so_far))
                 line, col = int(line), int(col)
                 if line == 0 and col == 0:
                     break
@@ -149,7 +149,7 @@ class PSearch:
                 vim.current.window.height = self.max_height
             else:
                 vim.current.window.height = matchesnr
-            
+
             vim.command("normal! zz")
 
         else:
