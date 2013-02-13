@@ -230,7 +230,7 @@ class PSearch:
                 self.misc.redraw()
                 break
 
-            elif input.UP or input.TAB or input.CTRL and input.CHAR == 'k':
+            elif input.UP or input.CTRL and input.CHAR == 'k':
                 # Move up in the matches list
                 last_index = len(vim.current.buffer) - 1
                 if self.curr_pos == 0:
