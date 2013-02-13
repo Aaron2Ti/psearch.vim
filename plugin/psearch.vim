@@ -26,8 +26,8 @@ if !has('python')
     finish
 endif
 
-if v:version < 703
-    echohl WarningMsg | echom "Psearch requires vim 7.3+" | echohl None
+if v:version < 702
+    echohl WarningMsg | echom "Psearch requires vim 7.2+" | echohl None
     finish
 endif
 

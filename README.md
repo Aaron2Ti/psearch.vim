@@ -27,7 +27,7 @@ Below there is list of all the mappings you can use to interact with the window:
 
 ## Requirements
 
-* Vim 7.3+
+* Vim 7.2+
 * Vim compiled with python 2.6+
 
 
