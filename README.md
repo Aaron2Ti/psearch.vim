@@ -1,6 +1,6 @@
 ## PSearch.vim
 
-**v0.1.0***
+**v0.1.0**
 
 
 ### Overview
@@ -18,10 +18,10 @@ Note that you are allowed to use any pattern that would work with the `/` and
 
 Below there is list of all the mappings you can use to interact with the window:
 
-* `UP`, `TAB`, `CTRL+K`: move up in the list.
+* `UP`, `CTRL+K`: move up in the list.
 * `DOWN`, `CTRL+J`: move down in the list.
 * `RETURN`, `CTRL+G`: go to the selected match.
-* `ESC`, `CTRL+C`: close the list.
+* `ESC`, `CTRL+C`: close the matches list.
                               
 
 
@@ -34,7 +34,7 @@ Below there is list of all the mappings you can use to interact with the window:
 ## Installation
 
 Extract the content of the folder into the `$HOME/.vim` directory or use your favourite
-package manager.
+plugin manager.
 
 
 
