@@ -252,10 +252,8 @@ class PSearch:
         self.curr_buf = vim.current.buffer
         self.curr_buf_pos = vim.current.window.cursor
 
-        # This first call opens the list of matches even though the user
-        # didn't give any character as input
-        #self.update_launcher()
-        #self.misc.redraw()
+        self.update_launcher()
+        self.misc.redraw()
 
         input = psearch.input.Input()
         # Start the input loop
@@ -271,10 +269,10 @@ class PSearch:
             input.reset()
             input.get()
 
-            #if input.RETURN or input.CTRL and input.CHAR == 'g':
-                #if self.go_to_selected_match():
-                    #self.close_launcher()
-                    #break
+            if input.RETURN or input.CTRL and input.CHAR == 'g':
+                if self.go_to_selected_match():
+                    self.close_launcher()
+                    break
 
             if input.BS:
                 # This acts just like the normal backspace key
@@ -295,28 +293,28 @@ class PSearch:
                 if self.launcher_curr_pos > 0:
                     self.launcher_curr_pos -= 1
 
-            #elif input.DOWN or input.CTRL and input.CHAR == 'j':
-                ## Move down in the matches list
-                #last_index = len(vim.current.buffer) - 1
-                #if self.launcher_curr_pos < last_index:
-                    #self.launcher_curr_pos += 1
+            elif input.DOWN or input.CTRL and input.CHAR == 'j':
+                # Move down in the matches list
+                last_index = len(vim.current.buffer) - 1
+                if self.launcher_curr_pos < last_index:
+                    self.launcher_curr_pos += 1
 
-            #elif input.LEFT or input.CTRL and input.CHAR == 'h':
-                #buf_list = sorted(self.buffers_with_matches())
-                #i = buf_list.index(self.view_buffer)
-                #self.view_buffer = buf_list[-1 if not i else i - 1]
+            elif input.LEFT or input.CTRL and input.CHAR == 'h':
+                buf_list = sorted(self.buffers_with_matches())
+                i = buf_list.index(self.view_buffer)
+                self.view_buffer = buf_list[-1 if not i else i - 1]
 
-            #elif input.RIGHT or input.CTRL and input.CHAR == 'l':
-                #buf_list = sorted(self.buffers_with_matches())
-                #i = buf_list.index(self.view_buffer)
-                #self.view_buffer = buf_list[
-                    #0 if i == len(buf_list) - 1 else i + 1]
+            elif input.RIGHT or input.CTRL and input.CHAR == 'l':
+                buf_list = sorted(self.buffers_with_matches())
+                i = buf_list.index(self.view_buffer)
+                self.view_buffer = buf_list[
+                    0 if i == len(buf_list) - 1 else i + 1]
 
-            #elif input.CTRL and input.CHAR == 't':
-                #self.launcher_curr_pos = 0
+            elif input.CTRL and input.CHAR == 't':
+                self.launcher_curr_pos = 0
 
-            #elif input.CTRL and input.CHAR == 'b':
-                #self.launcher_curr_pos = len(vim.current.buffer) - 1
+            elif input.CTRL and input.CHAR == 'b':
+                self.launcher_curr_pos = len(vim.current.buffer) - 1
 
             elif input.CHAR:
                 # A printable character has been pressed. We have to remember
