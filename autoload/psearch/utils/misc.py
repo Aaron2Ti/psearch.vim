@@ -45,3 +45,8 @@ def winnr():
 def go_to_win(nr):
     """To go to the window with the given number."""
     vim.command('{0}wincmd w'.format(nr))
+
+
+def buffers():
+    return [b.name for b in vim.buffers
+            if int(vim.eval("buflisted('{0}')".format(b.name)))]
