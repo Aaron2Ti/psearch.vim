@@ -29,8 +29,7 @@ class PSearch:
         self.name = 'psearch.launcher'
         self.prompt = self.settings.get('prompt')
         self.max_height = self.settings.get('max_height', int)
-        self.collapse_matches = self.settings.get(
-            'collapse_matches_on_the_same_line', bool)
+        self.collapse_matches = self.settings.get('collapse_matches', bool)
 
         self.input_so_far = ''
         self.launcher_winnr = None

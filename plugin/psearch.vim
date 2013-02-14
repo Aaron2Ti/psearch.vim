@@ -50,8 +50,7 @@ let g:pse_loaded = 1
 " Settings
 let g:pse_prompt = get(g:, 'pse_prompt', ' ❯ ')
 let g:pse_max_height = get(g:, 'pse_max_height', 15)
-let g:pse_collapse_matches_on_the_same_line = 
-    \ get(g:, 'pse_collapse_matches_on_the_same_line', 1)
+let g:pse_collapse_matches = get(g:, 'pse_collapse_matches', 1)
 
 
 " Commands
