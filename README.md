@@ -72,17 +72,10 @@ With this setting you can customize the look of the prompt used by the
 default: ' ❯ '
 
 
-### g:pse_collapse_matches 
-
-Collapse matches on the same line into one line in the preview window.
-
-default: 1
-
-
 ## Changelog
 
 ### v0.2.0
 
-* extended the search to all buffers
+* Extended searches to all buffers
 
-* first release
+* First release

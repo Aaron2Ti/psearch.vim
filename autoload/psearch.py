@@ -29,7 +29,6 @@ class PSearch:
         self.name = 'psearch.launcher'
         self.prompt = self.settings.get('prompt')
         self.max_height = self.settings.get('max_height', int)
-        self.collapse_matches = self.settings.get('collapse_matches', bool)
 
         self.input_so_far = ''
         self.launcher_win = None
@@ -137,18 +136,17 @@ class PSearch:
         self.matches[buf.name] = []
         orig_pos = vim.current.window.cursor
         vim.current.window.cursor = (1, 1)
+
         while True:
             line, col = vim.eval("searchpos('{0}', 'W')"
                 .format(self.input_so_far))
             line, col = int(line), int(col)
             if line == 0 and col == 0:
                 break
-            if self.collapse_matches:
-                if not any(True for m in self.matches[buf.name]
-                           if m[0] == line):
-                    self.matches[buf.name].append((line, col, buf[line - 1]))
-            else:
+            if not any(True for m in self.matches[buf.name]
+                        if m[0] == line):
                 self.matches[buf.name].append((line, col, buf[line - 1]))
+
         vim.current.window.cursor = orig_pos
 
     def update_launcher(self):

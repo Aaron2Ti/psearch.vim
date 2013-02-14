@@ -81,13 +81,6 @@ With this setting you can customize the look of the prompt used by the
 default: ' ❯ '
 
 
-------------------------------------------------------------------------------
-g:pse_collapse_matches                                *g:pse_collapse_matches* 
-
-Collapse matches on the same line into one line in the preview window.
-
-default: 1
-
 
 ==============================================================================
 4. About                                                        *psearch-about*
