@@ -1,6 +1,6 @@
 " ============================================================================
 " File: plugin/psearch.vim
-" Description: A preview for searches
+" Description: Multibuffer search 
 " Mantainer: Giacomo Comitti (https://github.com/gcmt)
 " Url: https://github.com/gcmt/psearch.vim
 " License: MIT
