@@ -83,6 +83,6 @@ default: 1
 
 ### v0.2.0
 
-* 
+* extended the search to all buffers
 
 * first release
