@@ -32,7 +32,7 @@ class PSearch:
         self.collapse_matches = self.settings.get('collapse_matches', bool)
 
         self.input_so_far = ''
-        self.launcher_winnr = None
+        self.launcher_win = None
         self.launcher_curr_pos = None
         self.find_new_matches = True
         self.matches = {}
@@ -59,14 +59,15 @@ class PSearch:
     def reset_launcher(self):
         """To reset the launcher state."""
         self.input_so_far = ''
-        self.launcher_winnr = None
+        self.launcher_win = None
         self.launcher_curr_pos = None
         self.find_new_matches = True
-        self.matches.clear()
+        self.matches = {}
         self.view_buffer = None
         self.curr_buf = None
         self.curr_buf_pos = None
         self.curr_buf_win = None
+        self.orig_settings = {}
         self.mapper = {}
 
     def setup_buffer(self):
@@ -94,24 +95,23 @@ class PSearch:
 
     def close_launcher(self):
         """To close the matches list window."""
-        self.misc.go_to_win(self.launcher_winnr)
+        self.misc.go_to_win(self.launcher_win)
+        self.restore_orig_settings()
         vim.command('q')
-        if self.curr_buf_win:
-            self.misc.go_to_win(self.curr_buf_win)
+        self.misc.go_to_win(self.curr_buf_win)
         self.reset_launcher()
 
     def open_launcher(self):
         """To open the matches list window."""
         vim.command('silent! botright split {0}'.format(self.name))
+        self.launcher_win = self.misc.winnr()
         self.setup_buffer()
-        return self.misc.bufwinnr(self.name)
 
     def buffers_with_matches(self):
         lst = list(set(self.misc.buffers()) &
                    set(self.matches.keys()))
         if self.curr_buf.name not in lst:
             lst.append(self.curr_buf.name)
-
         return lst
 
     def search(self, target):
@@ -127,7 +127,7 @@ class PSearch:
                 .format(target.replace('\\', '\\\\')))
 
             vim.command("set eventignore={0}".format(eventignore))
-            self.misc.go_to_win(self.launcher_winnr)
+            self.misc.go_to_win(self.launcher_win)
 
     def search_single_buffer(self, target):
         """To search in the current buffer the given pattern."""
@@ -153,11 +153,11 @@ class PSearch:
 
     def update_launcher(self):
         """To update the matches list content."""
-        if not self.launcher_winnr:
-            self.launcher_winnr = self.open_launcher()
+        if not self.launcher_win:
+            self.open_launcher()
 
         self.mapper.clear()
-        self.misc.go_to_win(self.launcher_winnr)
+        self.misc.go_to_win(self.launcher_win)
         self.misc.set_buffer(None)
 
         buffer_list = sorted(self.buffers_with_matches())
@@ -261,8 +261,8 @@ class PSearch:
 
         # This first call opens the list of matches even though the user
         # didn't give any character as input
-        self.update_launcher()
-        self.misc.redraw()
+        #self.update_launcher()
+        #self.misc.redraw()
 
         input = psearch.input.Input()
         # Start the input loop
@@ -293,7 +293,6 @@ class PSearch:
             elif input.ESC or input.INTERRUPT:
                 # The user want to close the launcher
                 self.close_launcher()
-                self.misc.redraw()
                 break
 
             elif input.UP or input.CTRL and input.CHAR == 'k':
@@ -344,5 +343,3 @@ class PSearch:
 
             # Clean the command line
             self.misc.redraw()
-
-        self.restore_orig_settings()
