@@ -31,7 +31,6 @@ class PSearch:
         self.max_height = self.settings.get('max_height', int)
 
         self.input_so_far = ''
-        self.launcher_win = None
         self.launcher_curr_pos = None
         self.find_new_matches = True
         self.matches = {}
@@ -39,7 +38,6 @@ class PSearch:
 
         self.curr_buf = None
         self.curr_buf_pos = None
-        self.curr_buf_win = None
 
         self.orig_settings = {}
         self.mapper = {}
@@ -58,14 +56,12 @@ class PSearch:
     def reset_launcher(self):
         """To reset the launcher state."""
         self.input_so_far = ''
-        self.launcher_win = None
         self.launcher_curr_pos = None
         self.find_new_matches = True
         self.matches = {}
         self.view_buffer = None
         self.curr_buf = None
         self.curr_buf_pos = None
-        self.curr_buf_win = None
         self.orig_settings = {}
         self.mapper = {}
 
@@ -94,16 +90,15 @@ class PSearch:
 
     def close_launcher(self):
         """To close the matches list window."""
-        self.misc.go_to_win(self.launcher_win)
+        self.misc.go_to_win(self.misc.bufwinnr(self.name))
         self.restore_orig_settings()
         vim.command('q')
-        self.misc.go_to_win(self.curr_buf_win)
+        self.misc.go_to_win(self.misc.bufwinnr(self.curr_buf.name))
         self.reset_launcher()
 
     def open_launcher(self):
         """To open the matches list window."""
         vim.command('silent! botright split {0}'.format(self.name))
-        self.launcher_win = self.misc.winnr()
         self.setup_buffer()
 
     def buffers_with_matches(self):
@@ -115,8 +110,8 @@ class PSearch:
 
     def search(self, target):
         self.matches.clear()
-        if self.curr_buf_win:
-            self.misc.go_to_win(self.curr_buf_win)
+        if self.misc.bufwinnr(self.curr_buf.name):
+            self.misc.go_to_win(self.misc.bufwinnr(self.curr_buf.name))
 
             # this speeds things up with multi buffer search
             eventignore = vim.eval("&eventignore")
@@ -124,9 +119,10 @@ class PSearch:
 
             vim.command("bufdo py psearch_plugin.search_single_buffer('{0}')"
                 .format(target.replace('\\', '\\\\')))
+            vim.command("b {0}".format(self.curr_buf.name))
 
             vim.command("set eventignore={0}".format(eventignore))
-            self.misc.go_to_win(self.launcher_win)
+            self.misc.go_to_win(self.misc.bufwinnr(self.name))
 
     def search_single_buffer(self, target):
         """To search in the current buffer the given pattern."""
@@ -151,11 +147,11 @@ class PSearch:
 
     def update_launcher(self):
         """To update the matches list content."""
-        if not self.launcher_win:
+        if not self.misc.bufwinnr(self.name):
             self.open_launcher()
 
         self.mapper.clear()
-        self.misc.go_to_win(self.launcher_win)
+        self.misc.go_to_win(self.misc.bufwinnr(self.name))
         self.misc.set_buffer(None)
 
         buffer_list = sorted(self.buffers_with_matches())
@@ -238,7 +234,7 @@ class PSearch:
         """To go to the selected match."""
         match = self.mapper.get(self.launcher_curr_pos)
         if match and self.view_buffer:
-            self.misc.go_to_win(self.curr_buf_win)
+            self.misc.go_to_win(self.misc.bufwinnr(self.curr_buf.name))
             vim.command('silent! e {0}'.format(self.view_buffer))
             vim.current.window.cursor = (match[0], match[1] - 1)
             vim.command("normal! zz")
@@ -254,7 +250,6 @@ class PSearch:
             self.input_so_far = word_under_cursor
 
         self.curr_buf = vim.current.buffer
-        self.curr_buf_win = self.misc.winnr()
         self.curr_buf_pos = vim.current.window.cursor
 
         # This first call opens the list of matches even though the user
@@ -264,7 +259,9 @@ class PSearch:
 
         input = psearch.input.Input()
         # Start the input loop
+        i = 0
         while True:
+            i += 1
             self.find_new_matches = False
 
             # Display the prompt and the text the user has been typed so far
@@ -274,12 +271,12 @@ class PSearch:
             input.reset()
             input.get()
 
-            if input.RETURN or input.CTRL and input.CHAR == 'g':
-                if self.go_to_selected_match():
-                    self.close_launcher()
-                    break
+            #if input.RETURN or input.CTRL and input.CHAR == 'g':
+                #if self.go_to_selected_match():
+                    #self.close_launcher()
+                    #break
 
-            elif input.BS:
+            if input.BS:
                 # This acts just like the normal backspace key
                 self.input_so_far = self.input_so_far[:-1]
                 self.find_new_matches = True
@@ -298,28 +295,28 @@ class PSearch:
                 if self.launcher_curr_pos > 0:
                     self.launcher_curr_pos -= 1
 
-            elif input.DOWN or input.CTRL and input.CHAR == 'j':
-                # Move down in the matches list
-                last_index = len(vim.current.buffer) - 1
-                if self.launcher_curr_pos < last_index:
-                    self.launcher_curr_pos += 1
+            #elif input.DOWN or input.CTRL and input.CHAR == 'j':
+                ## Move down in the matches list
+                #last_index = len(vim.current.buffer) - 1
+                #if self.launcher_curr_pos < last_index:
+                    #self.launcher_curr_pos += 1
 
-            elif input.LEFT or input.CTRL and input.CHAR == 'h':
-                buf_list = sorted(self.buffers_with_matches())
-                i = buf_list.index(self.view_buffer)
-                self.view_buffer = buf_list[-1 if not i else i - 1]
+            #elif input.LEFT or input.CTRL and input.CHAR == 'h':
+                #buf_list = sorted(self.buffers_with_matches())
+                #i = buf_list.index(self.view_buffer)
+                #self.view_buffer = buf_list[-1 if not i else i - 1]
 
-            elif input.RIGHT or input.CTRL and input.CHAR == 'l':
-                buf_list = sorted(self.buffers_with_matches())
-                i = buf_list.index(self.view_buffer)
-                self.view_buffer = buf_list[
-                    0 if i == len(buf_list) - 1 else i + 1]
+            #elif input.RIGHT or input.CTRL and input.CHAR == 'l':
+                #buf_list = sorted(self.buffers_with_matches())
+                #i = buf_list.index(self.view_buffer)
+                #self.view_buffer = buf_list[
+                    #0 if i == len(buf_list) - 1 else i + 1]
 
-            elif input.CTRL and input.CHAR == 't':
-                self.launcher_curr_pos = 0
+            #elif input.CTRL and input.CHAR == 't':
+                #self.launcher_curr_pos = 0
 
-            elif input.CTRL and input.CHAR == 'b':
-                self.launcher_curr_pos = len(vim.current.buffer) - 1
+            #elif input.CTRL and input.CHAR == 'b':
+                #self.launcher_curr_pos = len(vim.current.buffer) - 1
 
             elif input.CHAR:
                 # A printable character has been pressed. We have to remember

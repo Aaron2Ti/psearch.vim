@@ -34,7 +34,8 @@ def set_buffer(lst):
 
 def bufwinnr(name):
     """To return the number of the window whose buffer is named 'name'."""
-    return int(vim.eval("bufwinnr('{0}')".format(name)))
+    nr = int(vim.eval("bufwinnr('{0}')".format(name)))
+    return nr if nr > 0 else 0 
 
 
 def winnr():
