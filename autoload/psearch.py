@@ -12,8 +12,8 @@ import sys
 import vim
 import bisect
 
-sys.path.insert(0, os.path.split(
-    vim.eval('fnameescape(globpath(&runtimepath, "autoload/psearch.py"))'))[0])
+sys.path.insert(0, os.path.dirname(
+    vim.eval('globpath(&runtimepath, "autoload/psearch.py")')))
 
 import psearch.utils.settings
 import psearch.utils.misc
