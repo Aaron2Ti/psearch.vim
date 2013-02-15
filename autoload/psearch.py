@@ -252,14 +252,9 @@ class PSearch:
         self.curr_buf = vim.current.buffer
         self.curr_buf_pos = vim.current.window.cursor
 
-        self.update_launcher()
-        self.misc.redraw()
-
         input = psearch.input.Input()
         # Start the input loop
-        i = 0
         while True:
-            i += 1
             self.find_new_matches = False
 
             # Display the prompt and the text the user has been typed so far
