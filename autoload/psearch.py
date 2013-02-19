@@ -163,9 +163,9 @@ class PSearch:
         buf_next = buffer_list[0 if i == len(buffer_list) - 1 else i + 1]
 
         vim.command("setlocal stl=\ \ ⇠\ {0}\ \ [{1}]\ \ {2}\ ⇢\ \ ".format(
-            os.path.split(buf_prev)[1],
-            os.path.split(self.view_buffer)[1],
-            os.path.split(buf_next)[1]))
+            os.path.split(buf_prev)[1].replace(' ', '\\'),
+            os.path.split(self.view_buffer)[1].replace(' ', '\\'),
+            os.path.split(buf_next)[1].replace(' ', '\\')))
 
         # self.matches = {'bufname': [(linenr, col, line), ...], ...}
         if self.find_new_matches:
