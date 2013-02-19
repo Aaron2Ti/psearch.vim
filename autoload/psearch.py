@@ -39,7 +39,6 @@ class PSearch:
         self.curr_buf = None
         self.curr_buf_pos = None
 
-        self.orig_settings = {}
         self.mapper = {}
         self.RE_MATH = re.compile('(\d+|\+|\*|\/|-)')
 
@@ -47,11 +46,6 @@ class PSearch:
         vim.command('hi link PSearchLine String')
         vim.command('hi link PSearchDots Comment')
         vim.command('hi link PsearchMatches Search')
-
-    def restore_orig_settings(self):
-        """Restore original settings."""
-        for sett, val in self.orig_settings.items():
-            vim.command('set {0}={1}'.format(sett, val))
 
     def reset_launcher(self):
         """To reset the launcher state."""
@@ -77,8 +71,6 @@ class PSearch:
         vim.command("setlocal nowrap")
         vim.command("setlocal nonumber")
         vim.command("setlocal cursorline")
-        self.orig_settings['guicursor'] = vim.eval('&guicursor')
-        vim.command("setlocal guicursor=a:hor5-Cursor-blinkwait100")
 
     def highlight(self):
         """To setup highlighting."""
@@ -91,7 +83,6 @@ class PSearch:
     def close_launcher(self):
         """To close the matches list window."""
         self.misc.go_to_win(self.misc.bufwinnr(self.name))
-        self.restore_orig_settings()
         vim.command('q')
         self.misc.go_to_win(self.misc.bufwinnr(self.curr_buf.name))
         self.reset_launcher()
