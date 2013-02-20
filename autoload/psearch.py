@@ -45,7 +45,7 @@ class PSearch:
         # setup highlight groups
         vim.command('hi link PSearchLine String')
         vim.command('hi link PSearchDots Comment')
-        vim.command('hi link PsearchMatches Search')
+        vim.command('hi link PSearchMatches Search')
 
     def reset_launcher(self):
         """To reset the launcher state."""
@@ -70,15 +70,20 @@ class PSearch:
         vim.command("setlocal noswapfile")
         vim.command("setlocal nowrap")
         vim.command("setlocal nonumber")
-        vim.command("setlocal cursorline")
+
+    def clear_highlighting(self):
+        """To clear search highlighting."""
+        for match in vim.eval('getmatches()'):
+            if match['group'] == 'PSearchMatches':
+                vim.command("call matchdelete({0})".format(match['id']))
 
     def highlight(self):
         """To setup highlighting."""
-        vim.command("syntax clear")
-        vim.command('syn match PSearchLine /\%<6vLine:/')
-        vim.command('syn match PSearchDots /\%<17v\.\.\./')
-        vim.command('syn match PSearchMatches /\%>12v\c{0}/'
-            .format(self.input_so_far.strip('\\')))
+        vim.command("call matchadd('PSearchLine', '\%<6vLine:')")
+        vim.command("call matchadd('PSearchDots', '\%<17v\.\.\.')")
+        if self.input_so_far:
+            vim.command("call matchadd('PSearchMatches', '\%>12v\c{0}')"
+                .format(self.input_so_far))
 
     def close_launcher(self):
         """To close the matches list window."""
@@ -142,6 +147,7 @@ class PSearch:
             self.open_launcher()
 
         self.mapper.clear()
+        self.clear_highlighting()
         self.misc.go_to_win(self.misc.bufwinnr(self.name))
         self.misc.set_buffer(None)
 
