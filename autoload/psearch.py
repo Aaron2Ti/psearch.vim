@@ -108,7 +108,7 @@ class PSearch:
             eventignore = vim.eval("&eventignore")
             vim.command("set eventignore=all")
 
-            vim.command("bufdo py psearch_plugin.search_single_buffer('{0}')"
+            vim.command("silent! bufdo py psearch_plugin.search_single_buffer('{0}')"
                 .format(target.replace('\\', '\\\\')))
             vim.command("b {0}".format(self.curr_buf.name))
 
