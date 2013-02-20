@@ -40,6 +40,7 @@ class PSearch:
         self.curr_buf_pos = None
 
         self.mapper = {}
+        self.nohidden_set = False
         self.RE_MATH = re.compile('(\d+|\+|\*|\/|-)')
 
         # setup highlight groups
@@ -56,8 +57,8 @@ class PSearch:
         self.view_buffer = None
         self.curr_buf = None
         self.curr_buf_pos = None
-        self.orig_settings = {}
         self.mapper = {}
+        self.nohidden_set = False
 
     def setup_buffer(self):
         """To setup buffer properties of the matches list window."""
@@ -70,6 +71,9 @@ class PSearch:
         vim.command("setlocal noswapfile")
         vim.command("setlocal nowrap")
         vim.command("setlocal nonumber")
+        if vim.eval("&hidden") == '0':
+            vim.command("set hidden")
+            self.nohidden_set = True  # mmh...
 
     def clear_highlighting(self):
         """To clear search highlighting."""
@@ -90,6 +94,8 @@ class PSearch:
         self.misc.go_to_win(self.misc.bufwinnr(self.name))
         vim.command('q')
         self.misc.go_to_win(self.misc.bufwinnr(self.curr_buf.name))
+        if self.nohidden_set:
+            vim.command("set nohidden")
         self.reset_launcher()
 
     def open_launcher(self):
@@ -113,7 +119,8 @@ class PSearch:
             eventignore = vim.eval("&eventignore")
             vim.command("set eventignore=all")
 
-            vim.command("silent! bufdo py psearch_plugin.search_single_buffer('{0}')"
+            vim.command("silent! bufdo "
+                "py psearch_plugin.search_single_buffer('{0}')"
                 .format(target.replace('\\', '\\\\')))
             vim.command("b {0}".format(self.curr_buf.name))
 
