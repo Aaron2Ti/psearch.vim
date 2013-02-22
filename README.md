@@ -25,7 +25,8 @@ Below there is list of all the mappings you can use to interact with the window:
 * `ESC`, `CTRL+C`: close the matches list.
 
 You are allowed to use any pattern that would work with the `/` and
-`?` vim commands.                               
+`?` vim commands. Note that you have to write the pattern as the `nomagic`
+option would be set.
 
 
 ## Requirements
