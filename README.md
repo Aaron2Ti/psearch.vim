@@ -20,14 +20,12 @@ Below there is list of all the mappings you can use to interact with the window:
 * `DOWN`, `CTRL+J`: move down in the list.
 * `CTRL+B`: move to the bottom of the list.
 * `CTRL+T`: move to the top of the list.
-* `LEFT`, `RIGHT`: move across previews of matches in other buffers.
+* `LEFT` or `CTRL+H`, `RIGHT` or `CTRL+L`: move across lists of matches of other buffers.
 * `RETURN`, `CTRL+G`: go to the selected match.
 * `ESC`, `CTRL+C`: close the matches list.
 
 You are allowed to use any pattern that would work with the `/` and
-`?` vim commands. Note that you have to write the pattern as the `nomagic`
-option would be set.
-
+`?` vim commands and as the `nomagic` option would be set.
 
 ## Requirements
 
@@ -79,6 +77,7 @@ default: ' ❯ '
 
 * Searches are now performed in all buffers. 
 * Fix issues with some input characters.
+* Add new controls for the PSearch window.
 
 ### v0.1
 

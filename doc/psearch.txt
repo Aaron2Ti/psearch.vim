@@ -34,7 +34,7 @@ Below there is list of all the mappings you can use to interact with the window:
 
     * CTRL+T: move to the top of the list.
 
-    * LEFT, RIGHT: move across previews of matches in other buffers.
+    * LEFT or CTRL+H, RIGHT or CTRL+L: move across lists of matches of other buffers.
 
     * RETURN, CTRL+G: go to the selected match.
 
