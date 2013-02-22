@@ -86,8 +86,9 @@ class PSearch:
         vim.command("call matchadd('PSearchLine', '\%<6vLine:')")
         vim.command("call matchadd('PSearchDots', '\%<17v\.\.\.')")
         if self.input_so_far:
-            vim.command("call matchadd('PSearchMatches', '\%>12v\c{0}')"
-                .format(self.input_so_far))
+            vim.command('call matchadd("PSearchMatches", "\\\\M\\\\%>12v{0}")'
+                .format(self.input_so_far
+                    .replace('\\', '\\\\').replace('"', '\\"')))
 
     def close_launcher(self):
         """To close the matches list window."""
@@ -119,9 +120,9 @@ class PSearch:
             eventignore = vim.eval("&eventignore")
             vim.command("set eventignore=all")
 
-            vim.command("silent! bufdo "
-                "py psearch_plugin.search_single_buffer('{0}')"
-                .format(target.replace('\\', '\\\\')))
+            vim.command('silent! bufdo '
+                'py psearch_plugin.search_single_buffer("{0}")'
+                .format(target.replace('\\', '\\\\').replace('"', '\\"')))
             vim.command("b {0}".format(self.curr_buf.name))
 
             vim.command("set eventignore={0}".format(eventignore))
@@ -132,13 +133,21 @@ class PSearch:
         buf = vim.current.buffer
         if not buf.name:
             return
+
         self.matches[buf.name] = []
+        if not self.input_so_far:
+            return 
+
         orig_pos = vim.current.window.cursor
         vim.current.window.cursor = (1, 1)
 
         while True:
-            line, col = vim.eval("searchpos('{0}', 'W')"
-                .format(self.input_so_far))
+            try:
+                line, col = vim.eval('searchpos("\\\\M{0}", "W")'
+                    .format(self.input_so_far
+                        .replace('\\', '\\\\').replace('"', '\\"')))
+            except vim.error:
+                break
             line, col = int(line), int(col)
             if line == 0 and col == 0:
                 break
@@ -262,7 +271,9 @@ class PSearch:
             self.find_new_matches = False
 
             # Display the prompt and the text the user has been typed so far
-            vim.command("echo '{0}{1}'".format(self.prompt, self.input_so_far))
+            vim.command('echo "{0}{1}"'.format(
+                self.prompt, 
+                self.input_so_far.replace('\\', '\\\\').replace('"', '\\"')))
 
             # Get the next character
             input.reset()
