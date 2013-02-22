@@ -77,8 +77,8 @@ default: ' ❯ '
 
 ### v0.2
 
-* Searches are now performed to all buffers. 
-* Fix issues with some input characters and colors
+* Searches are now performed in all buffers. 
+* Fix issues with some input characters.
 
 ### v0.1
 
