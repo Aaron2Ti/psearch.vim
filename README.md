@@ -1,6 +1,6 @@
 ## PSearch.vim
 
-**v0.2.0**
+**v0.2**
 
 
 ### Overview
@@ -75,8 +75,11 @@ default: ' ❯ '
 
 ## Changelog
 
-### v0.2.0
+### v0.2
 
-* Extended searches to all buffers
+* Searches are now performed to all buffers. 
+* Fix issues with some input characters and colors
+
+### v0.1
 
 * First release
