@@ -336,6 +336,7 @@ class PSearch:
 
             elif input.CTRL and input.CHAR == 'a':
 
+                self.selection_pending = True
                 marks = list('qwertyuiopasdfghjklzxcvbnm')
                 b = vim.current.buffer
                 w = vim.current.window
