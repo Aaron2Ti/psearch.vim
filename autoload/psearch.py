@@ -356,9 +356,9 @@ class PSearch:
                     top_line += diff / 2
                     bot_line -= diff / 2
 
-                for i in range(top_line, bot_line):
+                for i in range(top_line-1, bot_line):
                     line = b[i]
-                    if 'Line: ' in line:
+                    if 'Line:' in line and marks:
                         m = marks.pop()
                         b[i] = line.replace('...', '<{0}>'.format(m), 1)
                         self.mark_map[m] = i
