@@ -43,10 +43,14 @@ class PSearch:
         self.nohidden_set = False
         self.RE_MATH = re.compile('(\d+|\+|\*|\/|-)')
 
+        self.selection_pending = False
+        self.mark_map = {}
+
         # setup highlight groups
         vim.command('hi link PSearchLine String')
         vim.command('hi link PSearchDots Comment')
         vim.command('hi link PSearchMatches Search')
+        vim.command('hi link PSearchMarks Type')
 
     def reset_launcher(self):
         """To reset the launcher state."""
@@ -85,6 +89,7 @@ class PSearch:
         """To setup highlighting."""
         vim.command("call matchadd('PSearchLine', '\%<6vLine:')")
         vim.command("call matchadd('PSearchDots', '\%<17v\.\.\.')")
+        vim.command("call matchadd('PSearchMarks', '\ <[a-z]>\ ')")
         if self.input_so_far:
             vim.command('call matchadd("PSearchMatches", "\\\\M\\\\%>12v{0}")'
                 .format(self.input_so_far
@@ -136,7 +141,7 @@ class PSearch:
 
         self.matches[buf.name] = []
         if not self.input_so_far:
-            return 
+            return
 
         orig_pos = vim.current.window.cursor
         vim.current.window.cursor = (1, 1)
@@ -194,7 +199,7 @@ class PSearch:
 
         if _matches:
             self.misc.set_buffer(
-                [self.render_line(m, i) for i, m in enumerate(_matches)])
+                [self.render_line(m, j) for j, m in enumerate(_matches)])
 
             # set the position to the current line
             if self.find_new_matches:
@@ -272,17 +277,53 @@ class PSearch:
 
             # Display the prompt and the text the user has been typed so far
             vim.command('echo "{0}{1}"'.format(
-                self.prompt, 
+                self.prompt,
                 self.input_so_far.replace('\\', '\\\\').replace('"', '\\"')))
 
             # Get the next character
             input.reset()
             input.get()
 
+
             if input.RETURN or input.CTRL and input.CHAR == 'g':
                 if self.go_to_selected_match():
                     self.close_launcher()
                     break
+
+            if self.selection_pending:
+                selected_mark = input.CHAR
+                if selected_mark in self.mark_map:
+                    selected_line = self.mark_map[selected_mark]
+                    vim.current.window.cursor = (selected_line, 1)
+                    self.launcher_curr_pos = selected_line
+                    self.go_to_selected_match()
+                    self.close_launcher()
+                    self.selection_pending = False
+                    self.mark_map = {}
+                    break;
+                else:
+                    self.update_launcher()
+                    input.CHAR = None
+                self.selection_pending = False
+                self.mark_map = {}
+
+            if input.CTRL and input.CHAR == 'l':
+                marks = ['m','n','b','v','c','x','z','a','s','d','f','g','h','j','k','l']
+                w = vim.current.window
+                vim.command('normal H');
+                top_line = w.cursor[0]
+                vim.command('normal L')
+                bot_line = w.cursor[0]
+
+                for i in range(top_line-1,bot_line):
+                    line = vim.current.buffer[i]
+                    if 'Line: ' in line:
+                        m = marks.pop()
+                        vim.current.buffer[i] = line.replace('...', '<'+m+'>')
+                        self.mark_map[m] = i
+                if len(self.mark_map) > 0:
+                    self.selection_pending = True
+                input.CHAR = None
 
             if input.BS:
                 # This acts just like the normal backspace key
