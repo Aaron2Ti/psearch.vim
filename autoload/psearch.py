@@ -63,6 +63,8 @@ class PSearch:
         self.curr_buf_pos = None
         self.mapper = {}
         self.nohidden_set = False
+        self.selection_pending = False
+        self.mark_map = {}
 
     def setup_buffer(self):
         """To setup buffer properties of the matches list window."""
@@ -88,7 +90,7 @@ class PSearch:
     def highlight(self):
         """To setup highlighting."""
         vim.command("call matchadd('PSearchLine', '\%<6vLine:')")
-        vim.command("call matchadd('PSearchDots', '\%<17v\.\.\.')")
+        vim.command("call matchadd('PSearchDots', '\%<18v\.')")
         vim.command("call matchadd('PSearchMarks', '\ <[a-z]>\ ')")
         if self.input_so_far:
             vim.command('call matchadd("PSearchMatches", "\\\\M\\\\%>12v{0}")'
@@ -98,11 +100,12 @@ class PSearch:
     def close_launcher(self):
         """To close the matches list window."""
         self.misc.go_to_win(self.misc.bufwinnr(self.name))
-        vim.command('q')
-        self.misc.go_to_win(self.misc.bufwinnr(self.curr_buf.name))
-        if self.nohidden_set:
-            vim.command("set nohidden")
-        self.reset_launcher()
+        if self.misc.bufname() == self.name:
+            vim.command('q')
+            self.misc.go_to_win(self.misc.bufwinnr(self.curr_buf.name))
+            if self.nohidden_set:
+                vim.command("set nohidden")
+            self.reset_launcher()
 
     def open_launcher(self):
         """To open the matches list window."""
@@ -284,46 +287,10 @@ class PSearch:
             input.reset()
             input.get()
 
-
             if input.RETURN or input.CTRL and input.CHAR == 'g':
                 if self.go_to_selected_match():
                     self.close_launcher()
                     break
-
-            if self.selection_pending:
-                selected_mark = input.CHAR
-                if selected_mark in self.mark_map:
-                    selected_line = self.mark_map[selected_mark]
-                    vim.current.window.cursor = (selected_line, 1)
-                    self.launcher_curr_pos = selected_line
-                    self.go_to_selected_match()
-                    self.close_launcher()
-                    self.selection_pending = False
-                    self.mark_map = {}
-                    break;
-                else:
-                    self.update_launcher()
-                    input.CHAR = None
-                self.selection_pending = False
-                self.mark_map = {}
-
-            if input.CTRL and input.CHAR == 'l':
-                marks = ['m','n','b','v','c','x','z','a','s','d','f','g','h','j','k','l']
-                w = vim.current.window
-                vim.command('normal H');
-                top_line = w.cursor[0]
-                vim.command('normal L')
-                bot_line = w.cursor[0]
-
-                for i in range(top_line-1,bot_line):
-                    line = vim.current.buffer[i]
-                    if 'Line: ' in line:
-                        m = marks.pop()
-                        vim.current.buffer[i] = line.replace('...', '<'+m+'>')
-                        self.mark_map[m] = i
-                if len(self.mark_map) > 0:
-                    self.selection_pending = True
-                input.CHAR = None
 
             if input.BS:
                 # This acts just like the normal backspace key
@@ -367,17 +334,56 @@ class PSearch:
             elif input.CTRL and input.CHAR == 'b':
                 self.launcher_curr_pos = len(vim.current.buffer) - 1
 
-            elif input.CHAR:
-                # A printable character has been pressed. We have to remember
-                # it so that in the next loop we can display exactly what the
-                # user has been typed so far
-                self.input_so_far += input.CHAR
-                self.find_new_matches = True
-                self.mapper.clear()
+            elif input.CTRL and input.CHAR == 'a':
 
-                # Reset the position of the selection in the matches list
-                # because the list has to be rebuilt
-                self.launcher_curr_pos = None
+                marks = list('qwertyuiopasdfghjklzxcvbnm')
+                b = vim.current.buffer
+                w = vim.current.window
+
+                vim.command("normal! H")
+                top_line = w.cursor[0]
+                vim.command("normal! L")
+                bot_line = w.cursor[0]
+
+                span = bot_line - top_line
+                if span > len(marks):
+                    diff = span - len(marks)
+                    top_line += diff / 2 + 1
+                    bot_line -= diff / 2 + 1
+
+                for i in range(top_line-1, bot_line):
+                    line = b[i]
+                    if 'Line: ' in line:
+                        m = marks.pop()
+                        b[i] = line.replace('...', '<{0}>'.format(m), 1)
+                        self.mark_map[m] = i
+
+                self.misc.redraw()
+                continue
+
+            elif input.CHAR:
+
+                if self.selection_pending:
+
+                    selected_line = self.mark_map.get(input.CHAR)
+                    if selected_line:
+                        self.launcher_curr_pos = selected_line
+                        self.go_to_selected_match()
+                        self.close_launcher()
+                        break
+
+                else:
+
+                    # A printable character has been pressed. We have to
+                    # remember it so that in the next loop we can display
+                    # exactly what the user has been typed so far
+                    self.input_so_far += input.CHAR
+                    self.find_new_matches = True
+                    self.mapper.clear()
+
+                    # Reset the position of the selection in the matches list
+                    # because the list has to be rebuilt
+                    self.launcher_curr_pos = None
 
             else:
                 self.misc.redraw()
