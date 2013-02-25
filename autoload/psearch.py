@@ -93,7 +93,7 @@ class PSearch:
         vim.command("call matchadd('PSearchDots', '\%<18v\.')")
         vim.command("call matchadd('PSearchMarks', '\ <[a-z]>\ ')")
         if self.input_so_far:
-            vim.command('call matchadd("PSearchMatches", "\\\\M\\\\%>12v{0}")'
+            vim.command('call matchadd("PSearchMatches", "\\\\M\\\\%>18v{0}")'
                 .format(self.input_so_far
                     .replace('\\', '\\\\').replace('"', '\\"')))
 
