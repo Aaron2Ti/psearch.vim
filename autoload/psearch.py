@@ -46,6 +46,8 @@ class PSearch:
         self.selection_pending = False
         self.mark_map = {}
 
+        self.cache = []
+
         # setup highlight groups
         vim.command('hi link PSearchLine String')
         vim.command('hi link PSearchDots Comment')
@@ -65,6 +67,7 @@ class PSearch:
         self.nohidden_set = False
         self.selection_pending = False
         self.mark_map = {}
+        self.cache = []
 
     def setup_buffer(self):
         """To setup buffer properties of the matches list window."""
@@ -190,7 +193,9 @@ class PSearch:
 
         # self.matches = {'bufname': [(linenr, col, line), ...], ...}
         if self.find_new_matches:
-            self.search(self.input_so_far)
+            if not self.cache:
+                self.search(self.input_so_far)
+                self.cache = list(self.matches)
 
             _matches = self.matches[self.view_buffer]
             if _matches:
@@ -297,6 +302,7 @@ class PSearch:
                 self.input_so_far = self.input_so_far[:-1]
                 self.find_new_matches = True
                 self.mapper.clear()
+                self.cache = []
                 # Reset the position of the selection in the matches list
                 # because the list has to be rebuilt
                 self.launcher_curr_pos = None
@@ -335,11 +341,9 @@ class PSearch:
                 self.launcher_curr_pos = len(vim.current.buffer) - 1
 
             elif input.CTRL and input.CHAR == 'a':
-
                 self.selection_pending = True
                 marks = list('qwertyuiopasdfghjklzxcvbnm')
-                b = vim.current.buffer
-                w = vim.current.window
+                b, w = vim.current.buffer, vim.current.window
 
                 vim.command("normal! H")
                 top_line = w.cursor[0]
@@ -381,6 +385,7 @@ class PSearch:
                     self.input_so_far += input.CHAR
                     self.find_new_matches = True
                     self.mapper.clear()
+                    self.cache = []
 
                     # Reset the position of the selection in the matches list
                     # because the list has to be rebuilt
