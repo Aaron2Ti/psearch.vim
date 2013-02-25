@@ -349,10 +349,10 @@ class PSearch:
                 span = bot_line - top_line
                 if span > len(marks):
                     diff = span - len(marks)
-                    top_line += diff / 2 + 1
-                    bot_line -= diff / 2 + 1
+                    top_line += diff / 2
+                    bot_line -= diff / 2
 
-                for i in range(top_line-1, bot_line):
+                for i in range(top_line, bot_line):
                     line = b[i]
                     if 'Line: ' in line:
                         m = marks.pop()
