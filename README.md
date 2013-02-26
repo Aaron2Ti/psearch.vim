@@ -1,6 +1,6 @@
 ## PSearch.vim
 
-**v0.2**
+**v0.3**
 
 
 ### Overview
@@ -28,7 +28,7 @@ Below there is list of all the mappings you can use to interact with the window:
 You are allowed to use any pattern that would work with the `/` and
 `?` vim commands and as the `nomagic` option would be set.
 
-Pressing CTRL+A in the psearch navigation buffer will add jump marks denoted
+Pressing `CTRL+A` in the psearch navigation buffer will add jump marks denoted
 in the format `<[a-z]>` for each search result entry. When the marks have been
 displayed entering any of the letters used as mark will jump directly to the
 respective entry and close the search navigation. Entering any letter that is
@@ -80,6 +80,11 @@ default: ' ❯ '
 
 
 ## Changelog
+
+### v0.3
+
+* Added jump-to-marks functionality for quick access to search results (thanks to Tobias Pflug).
+* Minor bugfixes.
 
 ### v0.2
 

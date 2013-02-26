@@ -1,18 +1,18 @@
 *psearch.txt* *psearch*
 
-                               PSearch v0.2.0
-                                     ~
-                              Reference Manual
+                              PSearch v0.3
+                                    ~
+                            Reference Manual
 
 
 ==============================================================================
 CONTENTS                                                    *psearch-contents*
 
-           1. Overview .............................. |psearch-overview|
-           2. Commands .............................. |psearch-commands|
-           3. Jump marks ............................ |psearch-jumpmarks|
-           4. Settings .............................. |psearch-settings|
-           5. About ................................. |psearch-about|
+        1. Overview .............................. |psearch-overview|
+        2. Commands .............................. |psearch-commands|
+        3. Jump marks ............................ |psearch-jumpmarks|
+        4. Settings .............................. |psearch-settings|
+        5. About ................................. |psearch-about|
 
 
 ==============================================================================
@@ -27,21 +27,21 @@ opened buffers.
 
 Below there is list of all the mappings you can use to interact with the window:
 
-    * UP, CTRL+K: move up in the list.
+* UP, CTRL+K: move up in the list.
 
-    * DOWN, CTRL+J: move down in the list.
+* DOWN, CTRL+J: move down in the list.
 
-    * CTRL+B: move to the bottom of the list.
+* CTRL+B: move to the bottom of the list.
 
-    * CTRL+T: move to the top of the list.
+* CTRL+T: move to the top of the list.
 
-    * LEFT or CTRL+H, RIGHT or CTRL+L: move across lists of matches of other buffers.
+* LEFT or CTRL+H, RIGHT or CTRL+L: move across lists of matches of other buffers.
 
-    * CTRL+A: show jump marks for each result.
+* CTRL+A: show jump marks for each result.
 
-    * RETURN, CTRL+G: go to the selected match.
+* RETURN, CTRL+G: go to the selected match.
 
-    * ESC, CTRL+C: close the matches list.
+* ESC, CTRL+C: close the matches list.
 
 You are allowed to use any pattern that would work with the `/` and
 `?` vim commands. Note that you have to write the pattern as the `nomagic`
