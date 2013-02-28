@@ -105,7 +105,7 @@ class PSearch:
         self.misc.go_to_win(self.misc.bufwinnr(self.name))
         if self.misc.bufname() == self.name:
             vim.command('q')
-            self.misc.go_to_win(self.misc.bufwinnr(self.curr_buf.name))
+            self.misc.go_to_win(self.misc.bufwinnr(self.curr_buf.number))
             if self.nohidden_set:
                 vim.command("set nohidden")
             self.reset_launcher()
@@ -118,23 +118,38 @@ class PSearch:
     def buffers_with_matches(self):
         lst = list(set(self.misc.buffers()) &
                    set(self.matches.keys()))
-        if self.curr_buf.name not in lst:
-            lst.append(self.curr_buf.name)
+        if self.curr_buf.number not in lst:
+            lst.append(self.curr_buf.number)
         return lst
 
     def search(self, target):
         self.matches.clear()
-        if self.misc.bufwinnr(self.curr_buf.name):
-            self.misc.go_to_win(self.misc.bufwinnr(self.curr_buf.name))
+        if self.misc.bufwinnr(self.curr_buf.number):
+            self.misc.go_to_win(self.misc.bufwinnr(self.curr_buf.number))
 
             # this speeds things up with multi buffer search
             eventignore = vim.eval("&eventignore")
             vim.command("set eventignore=all")
 
-            vim.command('silent! bufdo '
-                'py psearch_plugin.search_single_buffer("{0}")'
-                .format(target.replace('\\', '\\\\').replace('"', '\\"')))
-            vim.command("b {0}".format(self.curr_buf.name))
+            # using :bufdo in the quickfix window will delete it, so we just
+            # skip this part and search only in the current buffer and in the
+            # view buffer
+            if 'quickfix' != vim.eval('&buftype'):
+                vim.command('silent! bufdo '
+                    'py psearch_plugin.search_single_buffer("{0}")'
+                    .format(target.replace('\\', '\\\\').replace('"', '\\"')))
+
+            # make sure we search the current buffer and the view buffer, since
+            # :bufdo will skip them if they are unlisted
+            if vim.current.buffer not in self.matches:
+                self.search_single_buffer(target)
+            if self.view_buffer not in self.matches:
+                buffer_to_return_to = vim.current.buffer
+                vim.command('silent! b {0}'.format(self.view_buffer))
+                self.search_single_buffer(target)
+                vim.command('silent! b {0}'.format(buffer_to_return_to.number))
+
+            vim.command("b {0}".format(self.curr_buf.number))
 
             vim.command("set eventignore={0}".format(eventignore))
             self.misc.go_to_win(self.misc.bufwinnr(self.name))
@@ -142,10 +157,8 @@ class PSearch:
     def search_single_buffer(self, target):
         """To search in the current buffer the given pattern."""
         buf = vim.current.buffer
-        if not buf.name:
-            return
 
-        self.matches[buf.name] = []
+        self.matches[buf.number] = []
         if not self.input_so_far:
             return
 
@@ -162,9 +175,9 @@ class PSearch:
             line, col = int(line), int(col)
             if line == 0 and col == 0:
                 break
-            if not any(True for m in self.matches[buf.name]
+            if not any(True for m in self.matches[buf.number]
                         if m[0] == line):
-                self.matches[buf.name].append((line, col, buf[line - 1]))
+                self.matches[buf.number].append((line, col, buf[line - 1]))
 
         vim.current.window.cursor = orig_pos
 
@@ -180,16 +193,16 @@ class PSearch:
 
         buffer_list = sorted(self.buffers_with_matches())
         if not self.view_buffer:
-            self.view_buffer = self.curr_buf.name
+            self.view_buffer = self.curr_buf.number
 
         i = buffer_list.index(self.view_buffer)
         buf_prev = buffer_list[-1 if not i else i - 1]
         buf_next = buffer_list[0 if i == len(buffer_list) - 1 else i + 1]
 
         vim.command("setlocal stl=\ \ ⇠\ {0}\ \ [{1}]\ \ {2}\ ⇢\ \ ".format(
-            os.path.split(buf_prev)[1].replace(' ', '\\'),
-            os.path.split(self.view_buffer)[1].replace(' ', '\\'),
-            os.path.split(buf_next)[1].replace(' ', '\\')))
+            os.path.split(self.misc.bufname(buf_prev))[1].replace(' ', '\\'),
+            os.path.split(self.misc.bufname(self.view_buffer))[1].replace(' ', '\\'),
+            os.path.split(self.misc.bufname(buf_next))[1].replace(' ', '\\')))
 
         # self.matches = {'bufname': [(linenr, col, line), ...], ...}
         if self.find_new_matches:
@@ -199,7 +212,7 @@ class PSearch:
 
             _matches = self.matches[self.view_buffer]
             if _matches:
-                if self.view_buffer == self.curr_buf.name:
+                if self.view_buffer == self.curr_buf.number:
                     pos = bisect.bisect_left(_matches, self.curr_buf_pos)
                     _matches.insert(pos, self.curr_buf_pos)
         else:
@@ -211,7 +224,7 @@ class PSearch:
 
             # set the position to the current line
             if self.find_new_matches:
-                if self.view_buffer == self.curr_buf.name:
+                if self.view_buffer == self.curr_buf.number:
                     self.launcher_curr_pos = pos
                 else:
                     self.launcher_curr_pos = 0
@@ -260,8 +273,8 @@ class PSearch:
         """To go to the selected match."""
         match = self.mapper.get(self.launcher_curr_pos)
         if match and self.view_buffer:
-            self.misc.go_to_win(self.misc.bufwinnr(self.curr_buf.name))
-            vim.command('silent! e {0}'.format(self.view_buffer))
+            self.misc.go_to_win(self.misc.bufwinnr(self.curr_buf.number))
+            vim.command('silent! b {0}'.format(self.view_buffer))
             vim.current.window.cursor = (match[0], match[1] - 1)
             vim.command("normal! zz")
             return True
@@ -269,7 +282,9 @@ class PSearch:
     def open(self, word_under_cursor):
         """To open the launcher."""
 
-        if not vim.current.buffer.name:
+        # we can't search in the open command line mode(<C-f> in command line),
+        # because vim does not allow to leave that window.
+        if '[Command Line]' == vim.eval("buffer_name('%')"):
             return
 
         if word_under_cursor:

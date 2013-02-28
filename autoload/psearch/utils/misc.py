@@ -32,15 +32,22 @@ def set_buffer(lst):
     vim.current.buffer[:] = lst
 
 
-def bufwinnr(name):
-    """To return the number of the window whose buffer is named 'name'."""
-    nr = int(vim.eval("bufwinnr('{0}')".format(name)))
+def bufwinnr(identifier):
+    """To return the number of the window whose buffer is named or numbered
+    'identifier'."""
+    if isinstance(identifier, (int, long)):
+        nr = int(vim.eval("bufwinnr({0})".format(identifier)))
+    else:
+        nr = int(vim.eval("bufwinnr('{0}')".format(identifier)))
     return nr if nr > 0 else 0
 
 
-def bufname():
-    """To return the name of the current buffer."""
-    return vim.eval("bufname('%')")
+def bufname(number=None):
+    """To return the name of the buffer(default - current buffer)."""
+    if number:
+        return vim.eval("bufname({0})".format(number))
+    else:
+        return vim.eval("bufname('%')")
 
 
 def winnr():
@@ -54,5 +61,5 @@ def go_to_win(nr):
 
 
 def buffers():
-    return [b.name for b in vim.buffers
-            if int(vim.eval("buflisted('{0}')".format(b.name)))]
+    return [b.number for b in vim.buffers
+            if int(vim.eval("buflisted({0})".format(b.number)))]
