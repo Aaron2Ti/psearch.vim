@@ -4,7 +4,7 @@
 " Mantainer: Giacomo Comitti (https://github.com/gcmt)
 " Url: https://github.com/gcmt/psearch.vim
 " License: MIT
-" Version: 0.1.0
+" Version: 0.3.1
 " Last Changed: 12 Feb 2013
 " ============================================================================
 "

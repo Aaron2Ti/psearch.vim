@@ -1,6 +1,6 @@
 ## PSearch.vim
 
-**v0.3**
+**v0.3.1**
 
 
 ### Overview
@@ -80,6 +80,10 @@ default: ' ❯ '
 
 
 ## Changelog
+
+### v0.3.1
+
+* PSearch can now work with almost any kind of buffer (thanks to Idan Arye).
 
 ### v0.3
 

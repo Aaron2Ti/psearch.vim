@@ -1,6 +1,6 @@
 *psearch.txt* *psearch*
 
-                              PSearch v0.3
+                             PSearch v0.3.1
                                     ~
                             Reference Manual
 
