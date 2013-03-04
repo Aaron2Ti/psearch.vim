@@ -61,5 +61,6 @@ def go_to_win(nr):
 
 
 def buffers():
+    """To return a list of all listed and named buffers."""
     return [b.number for b in vim.buffers
-            if int(vim.eval("buflisted({0})".format(b.number)))]
+            if b.name and int(vim.eval("buflisted({0})".format(b.number)))]
