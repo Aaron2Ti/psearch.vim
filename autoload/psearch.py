@@ -104,7 +104,7 @@ class PSearch:
         """To close the matches list window."""
         self.misc.go_to_win(self.misc.bufwinnr(self.name))
         if self.misc.bufname() == self.name:
-            vim.command('q')
+            vim.command('bd')
             self.misc.go_to_win(self.misc.bufwinnr(self.curr_buf.number))
             if self.nohidden_set:
                 vim.command("set nohidden")
