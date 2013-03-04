@@ -282,6 +282,9 @@ class PSearch:
     def open(self, word_under_cursor):
         """To open the launcher."""
 
+        if not vim.current.buffer.name:
+            return
+
         # we can't search in the open command line mode(<C-f> in command line),
         # because vim does not allow to leave that window.
         if '[Command Line]' == vim.eval("buffer_name('%')"):
