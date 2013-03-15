@@ -115,11 +115,10 @@ class PSearch:
         self.setup_buffer()
 
     def buffers_with_matches(self):
-        lst = list(set(self.misc.buffers()) &
-                   set(self.matches.keys()))
-        if self.curr_buf.number not in lst:
-            lst.append(self.curr_buf.number)
-        return lst
+        """To return a list of buffers with matches."""
+        _set = set(self.misc.buffers()) & set(self.matches.keys())
+        _set.add(self.curr_buf.number)
+        return list(_set)
 
     def search(self, target):
         self.matches.clear()
