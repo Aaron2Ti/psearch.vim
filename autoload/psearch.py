@@ -41,7 +41,6 @@ class PSearch:
 
         self.mapper = {}
         self.nohidden_set = False
-        self.RE_MATH = re.compile('(\d+|\+|\*|\/|-)')
 
         self.selection_pending = False
         self.mark_map = {}
