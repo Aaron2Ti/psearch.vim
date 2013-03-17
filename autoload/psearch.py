@@ -7,7 +7,6 @@ Main class for the PSearch plugin.
 """
 
 import os
-import re
 import sys
 import vim
 import bisect
