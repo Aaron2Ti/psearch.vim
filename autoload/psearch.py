@@ -196,7 +196,7 @@ class PSearch:
         buf_prev = buffer_list[-1 if not i else i - 1]
         buf_next = buffer_list[0 if i == len(buffer_list) - 1 else i + 1]
 
-        vim.command("setlocal stl=\ \ ⇠\ {0}\ \ [{1}]\ \ {2}\ ⇢\ \ ".format(
+        vim.command("setlocal stl=\ \ <-\ {0}\ \ [{1}]\ \ {2}\ ->\ \ ".format(
             os.path.split(self.misc.bufname(buf_prev))[1].replace(' ', '\\'),
             os.path.split(self.misc.bufname(self.view_buffer))[1].replace(' ', '\\'),
             os.path.split(self.misc.bufname(buf_next))[1].replace(' ', '\\')))
