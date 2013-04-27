@@ -11,36 +11,9 @@
 
 " Init {{{
 
-if exists('g:pse_disable')
-    let s:disable = g:pse_disable
-else
-    let s:disable = 0
-endif
-
-if s:disable || exists("g:pse_loaded") || &cp
+if exists('g:pse_disable') || exists("g:pse_loaded") || !has('python') || v:version < 702 || &cp 
     finish
 endif
-
-if !has('python')
-    echohl WarningMsg | echom "PSearch requires vim to be compiled with Python 2.6+" | echohl None
-    finish
-endif
-
-if v:version < 702
-    echohl WarningMsg | echom "Psearch requires vim 7.2+" | echohl None
-    finish
-endif
-
-python << END
-import vim, sys
-
-if sys.version_info[:2] < (2, 6):
-    vim.command("""
-    echohl WarningMsg |
-    echom "PSearch requires vim to be compiled with Python 2.6+" |
-    echohl None
-    """)
-END
 
 let g:pse_loaded = 1
 
