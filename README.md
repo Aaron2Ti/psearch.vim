@@ -1,4 +1,4 @@
-## PSearch.vim
+## psearch.vim
 
 **v0.3.1**
 
