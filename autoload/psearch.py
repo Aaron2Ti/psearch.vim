@@ -328,7 +328,7 @@ class PSearch:
 
             elif input.CTRL and input.CHAR == 'u':
                 self.input_so_far = ''
-                self.find_new_matches = False
+                self.find_new_matches = True
                 self.mapper.clear()
                 self.cache = []
                 # Reset the position of the selection in the matches list
