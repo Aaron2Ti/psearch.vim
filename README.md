@@ -23,6 +23,7 @@ Below there is list of all the mappings you can use to interact with the window:
 * `LEFT` or `CTRL+H`, `RIGHT` or `CTRL+L`: move across lists of matches of other buffers.
 * `RETURN`, `CTRL+G`: go to the selected match.
 * `CTRL+A`: show jump marks for each result.
+* `CTRL+U`: clean the pattern.
 * `ESC`, `CTRL+C`: close the matches list.
 
 You are allowed to use any pattern that would work with the `/` and
