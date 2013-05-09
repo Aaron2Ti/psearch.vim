@@ -1,6 +1,6 @@
 ## psearch.vim
 
-**v0.3.1**
+**v0.3.2**
 
 
 ### Overview
@@ -77,10 +77,14 @@ default: 15
 With this setting you can customize the look of the prompt used by the
 `PSearch` command.
 
-default: ' ❯ '
+default: '>> '
 
 
 ## Changelog
+
+### v0.3.2
+
+* Added new mapping "CTRL+U" for clearing the current input (thanks to Aaron . Ti).
 
 ### v0.3.1
 
