@@ -326,6 +326,15 @@ class PSearch:
                 # because the list has to be rebuilt
                 self.launcher_curr_pos = None
 
+            elif input.CTRL and input.CHAR == 'u':
+                self.input_so_far = ''
+                self.find_new_matches = True
+                self.mapper.clear()
+                self.cache = []
+                # Reset the position of the selection in the matches list
+                # because the list has to be rebuilt
+                self.launcher_curr_pos = None
+
             elif input.ESC or input.INTERRUPT:
                 # The user want to close the launcher
                 self.close_launcher()
