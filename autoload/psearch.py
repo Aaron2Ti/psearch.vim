@@ -316,7 +316,7 @@ class PSearch:
                     self.close_launcher()
                     break
 
-            if input.BS:
+            if input.BS or input.CTRL and input.CHAR == 'h':
                 # This acts just like the normal backspace key
                 self.input_so_far = self.input_so_far[:-1]
                 self.find_new_matches = True
@@ -340,23 +340,23 @@ class PSearch:
                 self.close_launcher()
                 break
 
-            elif input.UP or input.CTRL and input.CHAR == 'k':
+            elif input.UP or input.CTRL and input.CHAR == 'p':
                 # Move up in the matches list
                 if self.launcher_curr_pos > 0:
                     self.launcher_curr_pos -= 1
 
-            elif input.DOWN or input.CTRL and input.CHAR == 'j':
+            elif input.DOWN or input.CTRL and input.CHAR == 'n':
                 # Move down in the matches list
                 last_index = len(vim.current.buffer) - 1
                 if self.launcher_curr_pos < last_index:
                     self.launcher_curr_pos += 1
 
-            elif input.LEFT or input.CTRL and input.CHAR == 'h':
+            elif input.LEFT or input.CTRL and input.CHAR == 'j':
                 buf_list = sorted(self.buffers_with_matches())
                 i = buf_list.index(self.view_buffer)
                 self.view_buffer = buf_list[-1 if not i else i - 1]
 
-            elif input.RIGHT or input.CTRL and input.CHAR == 'l':
+            elif input.RIGHT or input.CTRL and input.CHAR == 'k':
                 buf_list = sorted(self.buffers_with_matches())
                 i = buf_list.index(self.view_buffer)
                 self.view_buffer = buf_list[
